@@ -32,7 +32,6 @@
         <developerConnection>scm:git:ssh://git@github.com/altran/Valuereporter-Agent.git</developerConnection>
         <connection>scm:git:https://github.com/altran/Valuereporter-Agent.git</connection>
         <url>https://github.com/altran/Whydah-SecurityTokenService</url>
-    <tag>valuereporter-agent-0.1</tag>
   </scm>
 
     <repositories>
