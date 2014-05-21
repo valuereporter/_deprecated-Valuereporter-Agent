@@ -20,7 +20,8 @@ __Example Tomcat:__
 
 In catalina.bat, add to top of the file.
 ```
-SET JAVA_OPTS=%JAVA_OPTS% -javaagent:/full/path/to/newrelic.jar
+SET JAVA_OPTS=%JAVA_OPTS% -javaagent:../valuereporter-agent/valuereporter-agent-jar-with-dependencies.jar= \
+base.package:com.example,valuereporter.host:http://localhost:4901,prefix:<serviceId>
 ```
 
 Configuration
