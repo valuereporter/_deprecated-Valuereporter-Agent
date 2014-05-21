@@ -23,18 +23,18 @@ import java.util.Map;
 public class HttpSender  {
     private static final Logger log = LoggerFactory.getLogger(HttpSender.class);
 
-    private final WebTarget uib;
+    private final WebTarget observationTarget;
     ObjectMapper mapper = new ObjectMapper();
     private static final int STATUS_BAD_REQUEST = 400; //Response.Status.BAD_REQUEST.getStatusCode();
     private static final int STATUS_OK = 200; //Response.Status.OK.getStatusCode();
     private static final int STATUS_FORBIDDEN = 403;
     Map<String, WebTarget> observedMethodTargets;
 
-    public HttpSender() {
+    public HttpSender(String reporterHost, String reporterPort) {
         Client client = ClientBuilder.newClient();
-        String uibUrl = "http://localhost:4901/reporter/observe";//appConfig.getProperty("userIdentityBackendUri");
-        log.info("Connection to Statistics Reporter on {}" , uibUrl);
-        uib = client.target(uibUrl);
+        String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe";
+        log.info("Connection to Statistics Reporter on {}" , observationUrl);
+        observationTarget = client.target(observationUrl);
         observedMethodTargets = new HashMap<>();
     }
 
@@ -49,13 +49,13 @@ public class HttpSender  {
             int statusCode = response.getStatus();
             switch (statusCode) {
                 case STATUS_OK:
-                    log.info("updated via http ok {}", response.readEntity(String.class));
+                    log.debug("Updated via http ok {}", response.readEntity(String.class));
                     break;
                 case STATUS_FORBIDDEN:
-                    log.error("addPropertyOrRole-Not allowed from UIB: {}: {} Using adminUserTokenId {}, userName {}", response.getStatus(), response.readEntity(String.class));
+                    log.error("Not allowed to access ValueReporter. Status {}, Response {}", response.getStatus(), response.readEntity(String.class));
                     break;
                 default:
-                    log.error("addPropertyOrRole-Response from UIB: {}: {}", response.getStatus(), response.readEntity(String.class));
+                    log.error("Error while accessing ValueReporter. Status {},Response {}", response.getStatus(), response.readEntity(String.class));
             }
 
         } catch (IOException e) {
@@ -66,7 +66,7 @@ public class HttpSender  {
     private WebTarget findWebResourceByPrefix(String prefix) {
         WebTarget webTarget = observedMethodTargets.get(prefix);
         if (webTarget == null ) {
-            webTarget = uib.path("observedmethods").path(prefix);
+            webTarget = observationTarget.path("observedmethods").path(prefix);
             observedMethodTargets.put(prefix, webTarget);
         }
         return webTarget;

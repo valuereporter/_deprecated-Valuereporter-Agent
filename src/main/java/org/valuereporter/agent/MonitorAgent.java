@@ -13,16 +13,18 @@ import java.util.Map;
 
 /**
  * Usage
- * java -javaagent:value-monitor-agent-jar-with-dependencies.jar=statistics.csv.sec:2,statistics.csv.dir:./access-logs -jar <single-jar-runtime>
+ * java -javaagent:../valuereporter-agent/valuereporter-agent-jar-with-dependencies.jar= \
+ base.package:com.example,valuereporter.host.url:http://localhost:4901,prefix:<serviceId> \
+ -jar <your jar file>
  */
 public class MonitorAgent {
     private static final Logger log = LoggerFactory.getLogger(MonitorAgent.class);
-    private static final String DIR_NAME = "./access-logs";
-    private static final int INTERVAL_SEC = 1;
     public static final String BASE_PACKAGE_KEY = "base.package";
-    public static final String VALUE_REPORTER_URL_KEY = "valuereporter.host.url";
+    public static final String VALUE_REPORTER_HOST_KEY = "valuereporter.host";
+    public static final String VALUE_REPORTER_PORT_KEY = "valuereporter.port";
     public static final String PREFIX_KEY = "prefix";
-    private static final String DEFAULT_REPORTER_HOST_URL = "http://localhost:4901";
+    private static final String DEFAULT_REPORTER_HOST = "localhost";
+    private static final String DEFAULT_REPORTER_PORT = "4901";
     private static final String DEFAULT_PREFIX = "prefix-not-set";
 
 
@@ -31,12 +33,11 @@ public class MonitorAgent {
         log.info("Runtime: {}: {}", runtimeMxBean.getName(), runtimeMxBean.getInputArguments());
         log.info("Starting agent with arguments {}" , agentArguments);
         String basePackage = "";
-        String reporterHostUrl = DEFAULT_REPORTER_HOST_URL;
+        String reporterHost = DEFAULT_REPORTER_HOST;
+        String reporterPort = DEFAULT_REPORTER_PORT;
         String prefix = DEFAULT_PREFIX;
 
         if (agentArguments != null) {
-            // parse the arguments:
-            // graphite.host=localhost,graphite.port=2003
             Map<String, String> properties = new HashMap<String, String>();
             for(String propertyAndValue: agentArguments.split(",")) {
                 String[] tokens = propertyAndValue.split(":", 2);
@@ -47,16 +48,23 @@ public class MonitorAgent {
 
             }
             basePackage = properties.get(BASE_PACKAGE_KEY);
-            String host = properties.get(VALUE_REPORTER_URL_KEY);
-            log.info("ValueReporterHost property {}", host);
+            log.info("ValueReporter base.package property {}", basePackage);
+
+            String host = properties.get(VALUE_REPORTER_HOST_KEY);
+            log.info("ValueReporter host property {}", host);
             if ( host!= null) {
-                reporterHostUrl = host;
+                reporterHost = host;
+            }
+            String port = properties.get(VALUE_REPORTER_PORT_KEY);
+            log.info("ValueReporter port property {}", port);
+            if ( port!= null) {
+                reporterPort = port;
             }
             String tmpPrefix = properties.get(PREFIX_KEY);
             if (tmpPrefix != null) {
                 prefix = tmpPrefix;
             }
-            log.info("Using prefix {}", prefix);
+            log.info("ValueReporter prefix property {}", prefix);
 
 
         }
@@ -65,7 +73,7 @@ public class MonitorAgent {
         instrumentation.addTransformer(new TimedClassTransformer(basePackage));
 
         log.info("Starting HttpObservationDistributer");
-        new Thread(new HttpObservationDistributer()).start();
+        new Thread(new HttpObservationDistributer(reporterHost, reporterPort, prefix)).start();
     }
 
 }

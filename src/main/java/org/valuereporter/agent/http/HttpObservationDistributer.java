@@ -18,9 +18,10 @@ public class HttpObservationDistributer extends ObservationDistributer {
     List<ObservedMethod> observedMethods = new ArrayList<>();
     HttpSender httpSender;
 
-    public HttpObservationDistributer() {
+    public HttpObservationDistributer(String reporterHost, String reporterPort, String prefix) {
         super();
-        httpSender = new HttpSender();
+        httpSender = new HttpSender(reporterHost, reporterPort);
+        this.prefix = prefix;
     }
 
     @Override
@@ -43,19 +44,8 @@ public class HttpObservationDistributer extends ObservationDistributer {
     }
 
     private void forwardOutput() {
-        /*
-        String csv = "";
-        if (observedMethods != null) {
-            for (ObservedMethod observedMethod : observedMethods) {
-                csv += observedMethod.toCsv() + "\n";
-            }
-        }
-        log.info("Observed methods \n {}", csv);
-        */
-
         //Forward to HTTP
-
-        httpSender.forwardObservations("receipt-control-test", observedMethods);
+        httpSender.forwardObservations(prefix, observedMethods);
         observedMethods.clear();
     }
 

@@ -12,7 +12,7 @@ Start your appserver/program with an additional command -javaagent:<path to Valu
 __Example:__
 ```
 java -javaagent:../valuereporter-agent/valuereporter-agent-jar-with-dependencies.jar= \
-base.package:com.example,valuereporter.host.url:http://localhost:4901,prefix:<serviceId> \
+base.package:com.example,valuereporter.host:localhost,valuereporter.port:4901,prefix:myService \
  -jar <your jar file>
 ```
 
@@ -21,13 +21,14 @@ __Example Tomcat:__
 In catalina.bat, add to top of the file.
 ```
 SET JAVA_OPTS=%JAVA_OPTS% -javaagent:../valuereporter-agent/valuereporter-agent-jar-with-dependencies.jar= \
-base.package:com.example,valuereporter.host.url:http://localhost:4901,prefix:<serviceId>
+base.package:com.example,valuereporter.host:localhost,valuereporter.port:4901,prefix:myService \
 ```
 
 Configuration
 ===================
 
-* base.package com.example
-* valuereporter.host.url:http://localhost:4901
-* prefix:<serviceId>  - unique identifier for this service, and node. Used to identify the input from multiple services
+* __base.package__ - The package you want to scan. Example: com.example
+* __valuereporter.host__ - Where ValueReporter is running. (optional) Example: localhost
+* __valuereporter.port__ - Port of  ValueReporter (optional) Example: 8080
+* __prefix__  - unique identifier for this service, and node. Used to identify the input from multiple services
 and nodes, in Valuereporter

@@ -10,6 +10,7 @@ public abstract class ObservationDistributer implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(ObservationDistributer.class);
 
     private static MonitorRepository monitorRepository;
+    public String prefix = "PREFIX-NOT-SET";
 
     public ObservationDistributer() {
          monitorRepository = MonitorRepository.getInstance();
