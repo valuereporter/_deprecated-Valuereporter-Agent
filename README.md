@@ -8,6 +8,7 @@ Installation
 ===================
 
 Start your appserver/program with an additional command -javaagent:<path to Valuereporter-Agent>=<properties>
+
 Example:
 java -javaagent:../valuereporter-agent/valuereporter-agent-jar-with-dependencies.jar=base.package:com.example,valuereporter.host:http://localhost:4901,prefix:<serviceId> -jar <your jar file>
 
