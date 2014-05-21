@@ -3,7 +3,7 @@
 
   <groupId>org.valuereporter</groupId>
   <artifactId>valuereporter-agent</artifactId>
-  <version>0.1</version>
+  <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
     <description>javaagent monitoring activities in your application. This information is forwarded to Valuereporter via http.</description>
     
@@ -29,8 +29,9 @@
     </parent>
 
     <scm>
-        <developerConnection>scm:git:ssh://github.com/altran/Valuereporter-Agent.git</developerConnection>
-      <tag>valuereporter-agent-0.1</tag>
+        <developerConnection>scm:git:ssh://git@github.com/altran/Valuereporter-Agent.git</developerConnection>
+        <connection>scm:git:https://github.com/altran/Valuereporter-Agent.git</connection>
+        <url>https://github.com/altran/Whydah-SecurityTokenService</url>
   </scm>
 
     <repositories>
