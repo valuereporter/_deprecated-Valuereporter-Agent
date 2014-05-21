@@ -29,7 +29,7 @@
     </parent>
 
     <scm>
-        <developerConnection>scm:git:git://github.com:altran/Valuereporter-Agent.git</developerConnection>
+        <developerConnection>scm:git:git://github.com/altran/Valuereporter-Agent.git</developerConnection>
       <tag>valuereporter-agent-0.1</tag>
   </scm>
 
