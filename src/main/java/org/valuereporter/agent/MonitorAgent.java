@@ -20,8 +20,10 @@ public class MonitorAgent {
     private static final String DIR_NAME = "./access-logs";
     private static final int INTERVAL_SEC = 1;
     public static final String BASE_PACKAGE_KEY = "base.package";
-    public static final String VALUE_REPORTER_HOST_KEY = "valuereporter.host";
+    public static final String VALUE_REPORTER_URL_KEY = "valuereporter.host.url";
     public static final String PREFIX_KEY = "prefix";
+    private static final String DEFAULT_REPORTER_HOST_URL = "http://localhost:4901";
+    private static final String DEFAULT_PREFIX = "prefix-not-set";
 
 
     public static void premain(String agentArguments, Instrumentation instrumentation) {
@@ -29,6 +31,8 @@ public class MonitorAgent {
         log.info("Runtime: {}: {}", runtimeMxBean.getName(), runtimeMxBean.getInputArguments());
         log.info("Starting agent with arguments {}" , agentArguments);
         String basePackage = "";
+        String reporterHostUrl = DEFAULT_REPORTER_HOST_URL;
+        String prefix = DEFAULT_PREFIX;
 
         if (agentArguments != null) {
             // parse the arguments:
@@ -43,6 +47,17 @@ public class MonitorAgent {
 
             }
             basePackage = properties.get(BASE_PACKAGE_KEY);
+            String host = properties.get(VALUE_REPORTER_URL_KEY);
+            log.info("ValueReporterHost property {}", host);
+            if ( host!= null) {
+                reporterHostUrl = host;
+            }
+            String tmpPrefix = properties.get(PREFIX_KEY);
+            if (tmpPrefix != null) {
+                prefix = tmpPrefix;
+            }
+            log.info("Using prefix {}", prefix);
+
 
         }
 
