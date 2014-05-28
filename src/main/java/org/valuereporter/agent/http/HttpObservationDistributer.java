@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class HttpObservationDistributer extends ObservationDistributer {
     private static final Logger log = LoggerFactory.getLogger(HttpObservationDistributer.class);
-    private static final int MAX_CACHE_SIZE = 100;
+    private static final int MAX_CACHE_SIZE = 10000;
 
     List<ObservedMethod> observedMethods = new ArrayList<>();
     HttpSender httpSender;
