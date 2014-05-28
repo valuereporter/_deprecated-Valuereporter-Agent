@@ -14,13 +14,16 @@ import java.util.List;
 public class HttpObservationDistributer extends ObservationDistributer {
     private static final Logger log = LoggerFactory.getLogger(HttpObservationDistributer.class);
     private static final int MAX_CACHE_SIZE = 500;
+    private final String reporterHost;
+    private final String reporterPort;
 
     List<ObservedMethod> observedMethods = new ArrayList<>();
-    HttpSender httpSender;
+   // HttpSender httpSender;
 
     public HttpObservationDistributer(String reporterHost, String reporterPort, String prefix) {
         super();
-        httpSender = new HttpSender(reporterHost, reporterPort);
+        this.reporterHost = reporterHost;
+        this.reporterPort = reporterPort;
         this.prefix = prefix;
     }
 
@@ -46,7 +49,8 @@ public class HttpObservationDistributer extends ObservationDistributer {
     private void forwardOutput() {
         //Forward to HTTP
         log.trace("Forwarding ObservedMethods. Local cache size {}", observedMethods.size());
-        httpSender.forwardObservations(prefix, observedMethods);
+        new Thread(new HttpSender(reporterHost, reporterPort, prefix, observedMethods)).start();
+        //httpSender.forwardObservations(prefix, observedMethods);
         observedMethods.clear();
     }
 

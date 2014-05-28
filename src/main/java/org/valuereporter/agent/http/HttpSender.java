@@ -20,28 +20,49 @@ import java.util.Map;
 /**
  * Created by baardl on 07.05.14.
  */
-public class HttpSender  {
+public class HttpSender implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(HttpSender.class);
 
-    private final WebTarget observationTarget;
-    ObjectMapper mapper = new ObjectMapper();
+
+    private final String prefix;
+    private final List<ObservedMethod> observedMethods;
+    private final String reporterHost;
+    private final String reporterPort;
+    private ObjectMapper mapper = new ObjectMapper();
     private static final int STATUS_BAD_REQUEST = 400; //Response.Status.BAD_REQUEST.getStatusCode();
     private static final int STATUS_OK = 200; //Response.Status.OK.getStatusCode();
     private static final int STATUS_FORBIDDEN = 403;
-    Map<String, WebTarget> observedMethodTargets;
+    private Map<String, WebTarget> observedMethodTargets;
+    private final String observedMethodsJson;
 
-    public HttpSender(String reporterHost, String reporterPort) {
+    public HttpSender(final String reporterHost, final String reporterPort, final String prefix, final List<ObservedMethod> observedMethods) {
+        observedMethodsJson = buildJson(observedMethods);
+        this.reporterHost = reporterHost;
+        this.reporterPort = reporterPort;
+        this.prefix = prefix;
+        this.observedMethods = observedMethods;
+    }
+
+    private String buildJson(List<ObservedMethod> observedMethods)  {
+        String json = null;
+        try {
+            json = mapper.writeValueAsString(observedMethods);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    //public void forwardObservations(String prefix, List<ObservedMethod> observedMethods) {
+    public void run() {
         Client client = ClientBuilder.newClient();
         String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe";
         log.info("Connection to ValueReporter on {}" , observationUrl);
-        observationTarget = client.target(observationUrl);
+        final WebTarget observationTarget = client.target(observationUrl);
         observedMethodTargets = new HashMap<>();
-    }
-
-    public void forwardObservations(String prefix, List<ObservedMethod> observedMethods) {
-        WebTarget webResource = findWebResourceByPrefix(prefix);
-        try {
-            String observedMethodsJson = mapper.writeValueAsString(observedMethods);
+        //WebTarget webResource = findWebResourceByPrefix(prefix);
+        WebTarget webResource = observationTarget.path("observedmethods").path(prefix);
+            //String observedMethodsJson = mapper.writeValueAsString(observedMethods);
             log.trace("Forwarding observedMethods as Json \n{}", observedMethodsJson);
 
 
@@ -58,11 +79,9 @@ public class HttpSender  {
                     log.error("Error while accessing ValueReporter. Status {},Response {}", response.getStatus(), response.readEntity(String.class));
             }
 
-        } catch (IOException e) {
-            log.error("Error forwarding the observations. The application will not try to fix this.", e);
-        }
     }
 
+    /*
     private WebTarget findWebResourceByPrefix(String prefix) {
         WebTarget webTarget = observedMethodTargets.get(prefix);
         if (webTarget == null ) {
@@ -71,5 +90,6 @@ public class HttpSender  {
         }
         return webTarget;
     }
+    */
 
 }
