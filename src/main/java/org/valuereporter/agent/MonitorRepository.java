@@ -13,7 +13,7 @@ public class MonitorRepository {
     private static MonitorRepository instance = null;
     private static LinkedBlockingQueue<ObservedMethod> observedQueue;
     private MonitorRepository() {
-        observedQueue = new LinkedBlockingQueue<ObservedMethod>(1000);
+        observedQueue = new LinkedBlockingQueue<>(10000);
     }
     public static MonitorRepository getInstance() {
         if(instance == null) {
@@ -24,11 +24,11 @@ public class MonitorRepository {
     public void observed(String name, long startTimeMillis, long endTimeMillis) {
         if (name != null) {
             try {
-                log.debug("Add to observedQueue {}", name);
+                log.trace("Add to observedQueue {}", name);
                 observedQueue.put(new ObservedMethod(name, startTimeMillis,endTimeMillis));
-                log.debug("Done adding {}", name);
+                log.trace("Added {}, totalSize {}", name, observedQueue.size());
             } catch (InterruptedException e) {
-                log.warn("Could not add observation {}", e.getMessage());
+                log.warn("Could not add observation Name {}, startTime {}, endTime {}",name, startTimeMillis, endTimeMillis, e);
             }
         }
     }

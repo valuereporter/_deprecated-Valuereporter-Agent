@@ -33,7 +33,7 @@ public class HttpSender  {
     public HttpSender(String reporterHost, String reporterPort) {
         Client client = ClientBuilder.newClient();
         String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe";
-        log.info("Connection to Statistics Reporter on {}" , observationUrl);
+        log.info("Connection to ValueReporter on {}" , observationUrl);
         observationTarget = client.target(observationUrl);
         observedMethodTargets = new HashMap<>();
     }
@@ -49,7 +49,7 @@ public class HttpSender  {
             int statusCode = response.getStatus();
             switch (statusCode) {
                 case STATUS_OK:
-                    log.debug("Updated via http ok {}", response.readEntity(String.class));
+                    log.debug("Updated via http ok. Response is {}", response.readEntity(String.class));
                     break;
                 case STATUS_FORBIDDEN:
                     log.error("Not allowed to access ValueReporter. Status {}, Response {}", response.getStatus(), response.readEntity(String.class));
