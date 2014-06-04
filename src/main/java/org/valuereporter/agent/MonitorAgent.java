@@ -2,17 +2,13 @@ package org.valuereporter.agent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.valuereporter.agent.crawler.PublicMethodFinder;
+import org.valuereporter.agent.crawler.PublicMethodCrawler;
 import org.valuereporter.agent.http.HttpObservationDistributer;
 
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -79,30 +75,10 @@ public class MonitorAgent {
 
         log.info("Starting HttpObservationDistributer");
         new Thread(new HttpObservationDistributer(reporterHost, reporterPort, prefix)).start();
+        new Thread(new PublicMethodCrawler(reporterHost, reporterPort,prefix, basePackage)).start();
         //crawlForPublicMethods();
     }
 
-    private static void crawlForPublicMethods() {
-        log.info("app2");
-        try {
-            ArrayList<String> names = PublicMethodFinder.getClassNamesFromPackage("org.example");
-            log.info("Found {} from app2", names.size());
-            List<Class> classes = PublicMethodFinder.findClasses(names);
 
-            for (Class clazz : classes) {
-                log.trace("Found a potential class. {}", clazz.getName());
-                if (clazz.isPrimitive() || clazz.isArray() || clazz.isAnnotation()
-                        || clazz.isEnum() || clazz.isInterface()) {
-                    log.trace("Skip class {}: not a class", clazz.getName());
-                } else {
-                    PublicMethodFinder.findPublicMethods(clazz);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
 
 }
