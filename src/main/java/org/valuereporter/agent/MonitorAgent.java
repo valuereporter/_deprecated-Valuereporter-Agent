@@ -2,7 +2,6 @@ package org.valuereporter.agent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.valuereporter.agent.crawler.PublicMethodCrawler;
 import org.valuereporter.agent.http.HttpObservationDistributer;
 
 import java.lang.instrument.Instrumentation;
@@ -75,8 +74,7 @@ public class MonitorAgent {
 
         log.info("Starting HttpObservationDistributer");
         new Thread(new HttpObservationDistributer(reporterHost, reporterPort, prefix)).start();
-        new Thread(new PublicMethodCrawler(reporterHost, reporterPort,prefix, basePackage)).start();
-        //crawlForPublicMethods();
+       //TODO Include in 0.4 release  new Thread(new PublicMethodCrawler(reporterHost, reporterPort,prefix, basePackage)).start();
     }
 
 
