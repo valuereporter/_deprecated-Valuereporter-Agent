@@ -70,13 +70,13 @@ public class HttpSender implements Runnable {
             int statusCode = response.getStatus();
             switch (statusCode) {
                 case STATUS_OK:
-                    log.debug("Updated via http ok. Response is {}", response.readEntity(String.class));
+                    log.trace("Updated via http ok. Response is {}", response.readEntity(String.class));
                     break;
                 case STATUS_FORBIDDEN:
-                    log.error("Not allowed to access ValueReporter. Status {}, Response {}", response.getStatus(), response.readEntity(String.class));
+                    log.warn("Can not access ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {}, Response {}, ", observationUrl,response.getStatus(), response.readEntity(String.class));
                     break;
                 default:
-                    log.error("Error while accessing ValueReporter. Status {},Response {}", response.getStatus(), response.readEntity(String.class));
+                    log.error("Error while accessing ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {},Response from ValueReporter {}",observationUrl, response.getStatus(), response.readEntity(String.class));
             }
 
     }
