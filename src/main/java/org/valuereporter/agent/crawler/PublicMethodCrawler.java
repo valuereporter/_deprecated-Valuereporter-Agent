@@ -19,7 +19,7 @@ public class PublicMethodCrawler implements Runnable {
     private final String reporterPort;
     private final String prefix;
     private final String basePackage;
-    private ArrayList<ImplementedMethod> publicMethods;
+    private List<ImplementedMethod> publicMethods = new ArrayList<>();
     private int MAX_CACHE_SIZE = 500;
 
     public PublicMethodCrawler(String reporterHost, String reporterPort, String prefix, String basePackage) {
@@ -34,7 +34,7 @@ public class PublicMethodCrawler implements Runnable {
         crawlForPublicMethods();
     }
 
-    private void crawlForPublicMethods() {
+    protected void crawlForPublicMethods() {
         log.info("Starting to crawl for Public Methods.");
         try {
             ArrayList<String> names = PublicMethodFinder.getClassNamesFromPackage(basePackage);
