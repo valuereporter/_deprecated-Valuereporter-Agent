@@ -77,7 +77,6 @@ public class PublicMethodFinder {
 
     public static List<Class> findClasses(ArrayList<String> names) {
 
-        //See ClassFinder
         List<Class> classes = new ArrayList<Class>();
         for (String fileName : names) {
 
@@ -114,7 +113,7 @@ public class PublicMethodFinder {
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
             if (method.getModifiers() == Modifier.PUBLIC) {
-                log.info("Public method {} in class {}", method.getName(), clazz.getName());
+                log.trace("Public method {} in class {}", method.getName(), clazz.getName());
                 publicMethods.add(new ImplementedMethod(method.getName(), method.getDeclaringClass().getName()));
             }
         }

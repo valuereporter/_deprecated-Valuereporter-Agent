@@ -57,6 +57,8 @@ public class PublicMethodCrawler implements Runnable {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+        log.info("Crawled all classes. Local cash has {} elements still. Forwarding these to ValueReporter.", publicMethods.size());
+        forwardOutput();
         log.info("Done crawling.");
     }
 
