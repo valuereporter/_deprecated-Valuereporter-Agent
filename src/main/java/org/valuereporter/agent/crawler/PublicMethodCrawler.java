@@ -2,10 +2,10 @@ package org.valuereporter.agent.crawler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.valuereporter.agent.ImplementedMethod;
 import org.valuereporter.agent.http.HttpImplementedMethodSender;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,14 +19,14 @@ public class PublicMethodCrawler implements Runnable {
     private final String reporterPort;
     private final String prefix;
     private final String basePackage;
-    private final HttpImplementedMethodSender sender;
+    private ArrayList<ImplementedMethod> publicMethods;
+    private int MAX_CACHE_SIZE = 500;
 
     public PublicMethodCrawler(String reporterHost, String reporterPort, String prefix, String basePackage) {
         this.reporterHost = reporterHost;
         this.reporterPort = reporterPort;
         this.prefix = prefix;
         this.basePackage = basePackage;
-        this.sender = new HttpImplementedMethodSender(reporterHost, reporterPort, prefix);
     }
 
     @Override
@@ -42,13 +42,14 @@ public class PublicMethodCrawler implements Runnable {
             List<Class> classes = PublicMethodFinder.findClasses(names);
 
             for (Class clazz : classes) {
-                List<Method> publicMethods = null;
+                List<ImplementedMethod> publicMethodsInClass = null;
                 log.trace("Found a potential class. {}", clazz.getName());
                 if (clazz.isPrimitive() || clazz.isArray() || clazz.isAnnotation()
                         || clazz.isEnum() || clazz.isInterface()) {
                     log.trace("Skip class {}: not a class", clazz.getName());
                 } else {
-                    publicMethods = PublicMethodFinder.findPublicMethods(clazz);
+                    publicMethodsInClass = PublicMethodFinder.findPublicMethods(clazz);
+                    updateMethodsForClass(publicMethodsInClass, clazz.getName());
                 }
             }
         } catch (IOException e) {
@@ -57,5 +58,24 @@ public class PublicMethodCrawler implements Runnable {
             e.printStackTrace();
         }
         log.info("Done crawling.");
+    }
+
+    protected void updateMethodsForClass(List<ImplementedMethod> publicMethodsInClass, String className) {
+        if (publicMethodsInClass != null) {
+            log.trace("Found {} public methods in {}", publicMethodsInClass.size(), className);
+            publicMethods.addAll(publicMethodsInClass);
+            if (publicMethods.size() >= MAX_CACHE_SIZE) {
+                forwardOutput();
+            }
+        } else {
+            log.warn("Observed Method is null");
+        }
+
+    }
+
+    private void forwardOutput() {
+        log.trace("Forwarding PublicMethods. Local cache size {}", publicMethods.size());
+        new Thread(new HttpImplementedMethodSender(reporterHost, reporterPort, prefix, publicMethods)).start();
+        publicMethods.clear();
     }
 }

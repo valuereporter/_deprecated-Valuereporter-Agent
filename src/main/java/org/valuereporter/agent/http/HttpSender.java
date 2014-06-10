@@ -62,22 +62,22 @@ public class HttpSender implements Runnable {
         observedMethodTargets = new HashMap<>();
         //WebTarget webResource = findWebResourceByPrefix(prefix);
         WebTarget webResource = observationTarget.path("observedmethods").path(prefix);
-            //String observedMethodsJson = mapper.writeValueAsString(observedMethods);
-            log.trace("Forwarding observedMethods as Json \n{}", observedMethodsJson);
+        //String observedMethodsJson = mapper.writeValueAsString(observedMethods);
+        log.trace("Forwarding observedMethods as Json \n{}", observedMethodsJson);
 
 
-            Response response = webResource.request(MediaType.APPLICATION_JSON).post(Entity.entity(observedMethodsJson, MediaType.APPLICATION_JSON));
-            int statusCode = response.getStatus();
-            switch (statusCode) {
-                case STATUS_OK:
-                    log.trace("Updated via http ok. Response is {}", response.readEntity(String.class));
-                    break;
-                case STATUS_FORBIDDEN:
-                    log.warn("Can not access ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {}, Response {}, ", observationUrl,response.getStatus(), response.readEntity(String.class));
-                    break;
-                default:
-                    log.error("Error while accessing ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {},Response from ValueReporter {}",observationUrl, response.getStatus(), response.readEntity(String.class));
-            }
+        Response response = webResource.request(MediaType.APPLICATION_JSON).post(Entity.entity(observedMethodsJson, MediaType.APPLICATION_JSON));
+        int statusCode = response.getStatus();
+        switch (statusCode) {
+            case STATUS_OK:
+                log.trace("Updated via http ok. Response is {}", response.readEntity(String.class));
+                break;
+            case STATUS_FORBIDDEN:
+                log.warn("Can not access ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {}, Response {}, ", observationUrl,response.getStatus(), response.readEntity(String.class));
+                break;
+            default:
+                log.error("Error while accessing ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {},Response from ValueReporter {}",observationUrl, response.getStatus(), response.readEntity(String.class));
+        }
 
     }
 

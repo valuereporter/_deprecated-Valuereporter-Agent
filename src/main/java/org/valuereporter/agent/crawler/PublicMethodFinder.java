@@ -2,6 +2,7 @@ package org.valuereporter.agent.crawler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.valuereporter.agent.ImplementedMethod;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -107,14 +108,14 @@ public class PublicMethodFinder {
         return clazz;
     }
 
-    public static List<Method> findPublicMethods(Class clazz) {
-        List<Method> publicMethods = new ArrayList<>();
+    public static List<ImplementedMethod> findPublicMethods(Class clazz) {
+        List<ImplementedMethod> publicMethods = new ArrayList<>();
         Method[] methods = clazz.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
             if (method.getModifiers() == Modifier.PUBLIC) {
                 log.info("Public method {} in class {}", method.getName(), clazz.getName());
-                publicMethods.add(method);
+                publicMethods.add(new ImplementedMethod(method.getName(), method.getDeclaringClass().getName()));
             }
         }
         return publicMethods;

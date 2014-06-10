@@ -8,7 +8,10 @@ public class ImplementedMethod {
 
     public ImplementedMethod(String name) {
         this.name = name;
+    }
 
+    public ImplementedMethod(String methodName, String className) {
+        name = className.concat(".").concat(methodName);
     }
 
     public String getName() {
@@ -16,10 +19,9 @@ public class ImplementedMethod {
     }
 
 
-
     @Override
     public String toString() {
-        return "ObservedMethod{" +
+        return "ImplementedMethod{" +
                 "name='" + name +
                 '}';
     }
