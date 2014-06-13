@@ -32,3 +32,14 @@ Configuration
 * __valuereporter.port__ - Port of  ValueReporter (optional) Example: 8080
 * __prefix__  - unique identifier for this service, and node. Used to identify the input from multiple services
 and nodes, in Valuereporter
+
+Future improvements
+===================
+
+- When multiple methods has the same name, and different parameters, they will now be reported as one method.
+For the time beeing, this is not a crucial factor, thoug. When the GUI of Valuereporter are able show these variations
+with the same method name, in a propper way. Then we can start reporting on individual variations from the same method-
+name.
+
+- Time-based reporting. Ensure that data are sent from Valuereporter-agent at given intervals. Current implementation
+will, when activity on the monitored application is low, hold the data for a long period of time.

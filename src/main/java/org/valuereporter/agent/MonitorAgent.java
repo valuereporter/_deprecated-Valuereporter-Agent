@@ -39,7 +39,7 @@ public class MonitorAgent {
         String prefix = DEFAULT_PREFIX;
 
         if (agentArguments != null) {
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             for(String propertyAndValue: agentArguments.split(",")) {
                 String[] tokens = propertyAndValue.split(":", 2);
                 if (tokens.length != 2) {
@@ -75,6 +75,7 @@ public class MonitorAgent {
 
         log.info("Starting HttpObservationDistributer");
         new Thread(new HttpObservationDistributer(reporterHost, reporterPort, prefix)).start();
+        log.info("Activate Crawling for public methods.");
         new Thread(new PublicMethodCrawler(reporterHost, reporterPort,prefix, basePackage)).start();
     }
 
