@@ -13,6 +13,24 @@ import java.util.Map;
 
 
 /**
+ *
+ * MonitorAgent is the main class for this tool.
+ * This class will be started before your application, or application server starts up.
+ * Two pieces of functionallities will be started at the same time:
+ * - Instrumentation of classes, to monitor and report when they are beeing used.
+ * - Crawling your application to find implemented methods, that might be used.
+ *
+ * The latter functionallity enables you to see reports on the methods, and classes that are never beeing used.
+ *
+ * Reduce noice:
+ * Specify your package structure by adding the base.package parameter. This will enable the agent to only monitor, and
+ * report on the crucial piece of information: Your code!
+ *
+ * Prefix:
+ * The prefix parameter enables you to identify which application and node that are running the functionallity.
+ * Valuereporter will be able to receive observations from multiple applications, and node. The prefix parameter will
+ * separate the data from each of these individual runtimes.
+ *
  * Usage
  * java -javaagent:../valuereporter-agent/valuereporter-agent-jar-with-dependencies.jar= \
  base.package:com.example,valuereporter.host.url:http://localhost:4901,prefix:<serviceId> \
