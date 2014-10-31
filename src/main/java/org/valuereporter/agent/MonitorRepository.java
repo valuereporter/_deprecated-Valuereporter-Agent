@@ -34,12 +34,16 @@ public class MonitorRepository {
     }
 
     public boolean hasObservations() {
-        return (observedQueue.size() > 0);
+        boolean hasObservations = observedQueue.size() > 0;
+        log.debug("hasObservations {}", hasObservations);
+        return hasObservations;
     }
 
     public ObservedMethod takeNext() {
         try {
-            return observedQueue.take();
+            ObservedMethod observedMethod = observedQueue.take();
+            log.debug("takeNext-observedMethod {}", observedMethod.toString());
+            return observedMethod;
         } catch (InterruptedException e) {
             log.warn("Nothing to take {}", e.getMessage());
             return null;

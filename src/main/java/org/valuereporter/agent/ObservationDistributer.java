@@ -8,12 +8,15 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ObservationDistributer implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(ObservationDistributer.class);
+    private static final long DEFAULT_SLEEP = 1000;
 
     private static MonitorRepository monitorRepository;
     public String prefix = "PREFIX-NOT-SET";
+    private final long sleepPeriod;
 
     public ObservationDistributer() {
          monitorRepository = MonitorRepository.getInstance();
+        sleepPeriod = DEFAULT_SLEEP;
     }
 
     @Override
@@ -23,6 +26,11 @@ public abstract class ObservationDistributer implements Runnable {
             while (monitorRepository.hasObservations()) {
                 ObservedMethod observedMethod = monitorRepository.takeNext();
                 updateObservation(observedMethod);
+            }
+            try {
+                Thread.sleep(sleepPeriod);
+            } catch (InterruptedException e) {
+                //Interupted sleep. No probblem, and ignored.
             }
         } while (true);
 
