@@ -126,6 +126,13 @@
             <version>2.8.1</version>
         </dependency>
 
+        <!-- Use Hystrix when dealing with connections -->
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-core</artifactId>
+            <version>1.4.11</version>
+        </dependency>
+
 
         <!-- Jersey http client -->
       <dependency>

@@ -83,6 +83,9 @@ public class HttpObservationDistributer extends ObservationDistributer {
         HttpSender httpSender = new HttpSender(reporterHost, reporterPort, prefix, observedMethods);
         if (executor.getActiveCount() < executor.getMaximumPoolSize()) {
             executor.submit(httpSender);
+            //Prepare for Hystrix
+//            CommandSender commandSender = new CommandSender(reporterHost,reporterPort,prefix,observedMethods);
+//            executor.submit(commandSender);
         }else {
             log.info("No threads available for HttpSender. Will discard content {}", httpSender);
         }
