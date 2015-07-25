@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * TODO Use Hysterix for sending.
  * Created by baardl on 07.05.14.
  */
 public class HttpSender implements Runnable {
