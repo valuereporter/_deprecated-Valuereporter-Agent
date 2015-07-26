@@ -13,9 +13,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * TODO Use Hysterix for sending.
@@ -26,14 +24,11 @@ public class HttpSender implements Runnable {
 
 
     private final String prefix;
-    private final List<ObservedMethod> observedMethods;
     private final String reporterHost;
     private final String reporterPort;
     private ObjectMapper mapper = new ObjectMapper();
-    private static final int STATUS_BAD_REQUEST = 400; //Response.Status.BAD_REQUEST.getStatusCode();
     private static final int STATUS_OK = 200; //Response.Status.OK.getStatusCode();
     private static final int STATUS_FORBIDDEN = 403;
-    private Map<String, WebTarget> observedMethodTargets;
     private final String observedMethodsJson;
 
     public HttpSender(final String reporterHost, final String reporterPort, final String prefix, final List<ObservedMethod> observedMethods) {
@@ -41,7 +36,6 @@ public class HttpSender implements Runnable {
         this.reporterHost = reporterHost;
         this.reporterPort = reporterPort;
         this.prefix = prefix;
-        this.observedMethods = observedMethods;
     }
 
     private String buildJson(List<ObservedMethod> observedMethods)  {
@@ -60,10 +54,7 @@ public class HttpSender implements Runnable {
         String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe";
         log.info("Connection to ValueReporter on {}" , observationUrl);
         final WebTarget observationTarget = client.target(observationUrl);
-        observedMethodTargets = new HashMap<>();
-        //WebTarget webResource = findWebResourceByPrefix(prefix);
         WebTarget webResource = observationTarget.path("observedmethods").path(prefix);
-        //String observedMethodsJson = mapper.writeValueAsString(observedMethods);
         log.trace("Forwarding observedMethods as Json \n{}", observedMethodsJson);
 
 
@@ -81,16 +72,5 @@ public class HttpSender implements Runnable {
         }
 
     }
-
-    /*
-    private WebTarget findWebResourceByPrefix(String prefix) {
-        WebTarget webTarget = observedMethodTargets.get(prefix);
-        if (webTarget == null ) {
-            webTarget = observationTarget.path("observedmethods").path(prefix);
-            observedMethodTargets.put(prefix, webTarget);
-        }
-        return webTarget;
-    }
-    */
 
 }

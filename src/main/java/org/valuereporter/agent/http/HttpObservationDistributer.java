@@ -56,7 +56,6 @@ public class HttpObservationDistributer extends ObservationDistributer {
         if (observedMethod != null) {
             //log.info("Observed {}", observedMethod.toString());
             observedMethods.add(observedMethod);
-            //TODO add check on timeout, to ensure the content is sent every x seconds.
             if (observedMethods.size() >= MAX_CACHE_SIZE ||waitedLongEnough()) {
                 forwardOutput();
                 updateLatestTimeForwarding();
@@ -75,7 +74,6 @@ public class HttpObservationDistributer extends ObservationDistributer {
     }
 
     /**
-     * TODO use ThreadPool to fetch a Thread/Worker.
      * This worker will call a Hystrix Command to forward the payload.
      */
     private void forwardOutput() {
