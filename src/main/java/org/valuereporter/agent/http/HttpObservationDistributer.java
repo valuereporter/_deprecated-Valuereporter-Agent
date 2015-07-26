@@ -41,8 +41,8 @@ public class HttpObservationDistributer extends ObservationDistributer {
     }
 
     protected void updateLatestTimeForwarding() {
-        DateTime nextTime = new DateTime();
-        nextTime.plusMillis(MAX_WAIT_PERIOD_MS);
+        DateTime currentTime = new DateTime();
+        DateTime nextTime = currentTime.plusMillis(MAX_WAIT_PERIOD_MS);
         nextForwardAtLatest = nextTime.getMillis();
     }
 
@@ -68,7 +68,10 @@ public class HttpObservationDistributer extends ObservationDistributer {
     }
 
     boolean waitedLongEnough() {
-        return  System.currentTimeMillis() > nextForwardAtLatest;
+
+        boolean doForward = System.currentTimeMillis() > nextForwardAtLatest;
+        log.debug("doForward {}", doForward);
+        return  doForward;
     }
 
     /**
@@ -92,5 +95,15 @@ public class HttpObservationDistributer extends ObservationDistributer {
         observedMethods.clear();
     }
 
+    public long getNextForwardAtLatest() {
+        return nextForwardAtLatest;
+    }
 
+    public int getMaxCacheSize() {
+        return MAX_CACHE_SIZE;
+    }
+
+    public int getMaxWaitPeriodMs() {
+        return MAX_WAIT_PERIOD_MS;
+    }
 }
