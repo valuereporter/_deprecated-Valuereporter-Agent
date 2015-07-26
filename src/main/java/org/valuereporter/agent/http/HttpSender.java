@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * TODO Use Hysterix for sending.
  * Created by baardl on 07.05.14.
  */
 public class HttpSender implements Runnable {

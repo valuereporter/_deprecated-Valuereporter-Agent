@@ -77,18 +77,16 @@ public class HttpObservationDistributer extends ObservationDistributer {
      * This worker will call a Hystrix Command to forward the payload.
      */
     private void forwardOutput() {
-        //Forward to HTTP
+        //Forward to Valuereporter via HTTP
         log.trace("Forwarding ObservedMethods. Local cache size {}", observedMethods.size());
-//        new Thread(new HttpSender(reporterHost, reporterPort, prefix, observedMethods)).start();
-        //httpSender.forwardObservations(prefix, observedMethods);
-        HttpSender httpSender = new HttpSender(reporterHost, reporterPort, prefix, observedMethods);
+//        HttpSender httpSender = new HttpSender(reporterHost, reporterPort, prefix, observedMethods);
         if (executor.getActiveCount() < executor.getMaximumPoolSize()) {
-            executor.submit(httpSender);
+//            executor.submit(httpSender);
             //Prepare for Hystrix
-//            CommandSender commandSender = new CommandSender(reporterHost,reporterPort,prefix,observedMethods);
-//            executor.submit(commandSender);
+            CommandSender commandSender = new CommandSender(reporterHost,reporterPort,prefix,observedMethods);
+            executor.submit(commandSender);
         }else {
-            log.info("No threads available for HttpSender. Will discard content {}", httpSender);
+            log.info("No threads available for HttpSender. Will discard content {}", observedMethods.size());
         }
         observedMethods.clear();
     }
