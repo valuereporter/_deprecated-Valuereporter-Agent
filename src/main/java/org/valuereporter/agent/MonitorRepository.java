@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
@@ -15,22 +16,37 @@ public class MonitorRepository {
     private MonitorRepository() {
         observedQueue = new LinkedBlockingQueue<>(10000);
     }
+
+    public MonitorRepository(int maxSize) {
+        observedQueue = new LinkedBlockingQueue<>(maxSize);
+    }
+
+    public static MonitorRepository getInstance(int maxSize) {
+        if(instance == null) {
+            instance = new MonitorRepository(maxSize);
+        } else {
+            log.warn("Tried set capacity of obeservedQueue to {}. This is not possible. Max capacity remains at {}", maxSize, observedQueue.size() + observedQueue.remainingCapacity());
+        }
+        return instance;
+    }
     public static MonitorRepository getInstance() {
         if(instance == null) {
             instance = new MonitorRepository();
         }
         return instance;
     }
-    public void observed(String name, long startTimeMillis, long endTimeMillis) {
+    public boolean observed(String name, long startTimeMillis, long endTimeMillis) {
+        boolean isObserved = false;
         if (name != null) {
             try {
                 log.trace("Add to observedQueue {}", name);
-                observedQueue.put(new ObservedMethod(name, startTimeMillis,endTimeMillis));
-                log.trace("Added {}, totalSize {}", name, observedQueue.size());
+                isObserved = observedQueue.offer(new ObservedMethod(name, startTimeMillis,endTimeMillis), 1, TimeUnit.MILLISECONDS);
+                log.trace("Attempt to add {}, estimated totalSize {}, was added [{}]", name, observedQueue.size(), isObserved);
             } catch (InterruptedException e) {
                 log.warn("Could not add observation Name {}, startTime {}, endTime {}",name, startTimeMillis, endTimeMillis, e);
             }
         }
+        return isObserved;
     }
 
     public boolean hasObservations() {

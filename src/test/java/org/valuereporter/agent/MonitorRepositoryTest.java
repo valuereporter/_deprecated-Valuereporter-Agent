@@ -2,6 +2,9 @@ package org.valuereporter.agent;
 
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.*;
+
+
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
  */
@@ -9,6 +12,16 @@ public class MonitorRepositoryTest {
     @Test
     public void testObserved() throws Exception {
 
+    }
+
+    @Test
+    public void testObservedMoreThanCapacity() throws Exception {
+        MonitorRepository repository = MonitorRepository.getInstance(1);
+        assertTrue(repository.observed("ok",System.currentTimeMillis()-2000, System.currentTimeMillis()));
+        assertFalse(repository.observed("timeout",System.currentTimeMillis()-2000, System.currentTimeMillis()));
+        ObservedMethod observedMethod = repository.takeNext();
+        assertNotNull(observedMethod);
+        assertEquals(observedMethod.getName(), "ok");
     }
 
     @Test
