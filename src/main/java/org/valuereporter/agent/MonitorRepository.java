@@ -17,7 +17,11 @@ public class MonitorRepository {
         observedQueue = new LinkedBlockingQueue<>(10000);
     }
 
-    public MonitorRepository(int maxSize) {
+    /**
+     * Should be used for testing only.
+     * @param maxSize
+     */
+    protected MonitorRepository(int maxSize) {
         observedQueue = new LinkedBlockingQueue<>(maxSize);
     }
 
@@ -55,10 +59,10 @@ public class MonitorRepository {
         return hasObservations;
     }
 
-    public ObservedMethod takeNext() {
+    public ObservedMethod takeFirst() {
         try {
-            ObservedMethod observedMethod = observedQueue.take();
-            //log.debug("takeNext-observedMethod {}", observedMethod.toString());
+            ObservedMethod observedMethod = observedQueue.poll(1,TimeUnit.MILLISECONDS);
+            //log.debug("takeFirst-observedMethod {}", observedMethod.toString());
             return observedMethod;
         } catch (InterruptedException e) {
             log.warn("Nothing to take {}", e.getMessage());
