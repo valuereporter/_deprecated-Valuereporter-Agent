@@ -24,7 +24,7 @@ public abstract class ObservationDistributer implements Runnable {
         log.info("Starting ObservationDistributer");
         do {
             while (monitorRepository.hasObservations()) {
-                ObservedMethod observedMethod = monitorRepository.takeNext();
+                ObservedMethod observedMethod = monitorRepository.takeFirst();
                 updateObservation(observedMethod);
             }
             try {
