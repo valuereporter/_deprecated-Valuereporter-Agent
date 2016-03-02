@@ -37,7 +37,7 @@ public class CommandSendActivitiesTest {
         sendActivities = new CommandSendActivities(null,null,"test",observedActivities);
         String observedActivitiesJson = sendActivities.getObservedActivitiesJson();
         assertNotNull(observedActivitiesJson);
-        assertEquals(expectedSingle, observedActivitiesJson);
+        assertEquals(observedActivitiesJson, expectedSingle);
 
     }
 
