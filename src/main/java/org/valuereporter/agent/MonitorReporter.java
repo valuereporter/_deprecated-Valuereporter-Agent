@@ -2,6 +2,8 @@ package org.valuereporter.agent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.valuereporter.agent.activity.ActivityRepository;
+import org.valuereporter.agent.activity.ObservedActivity;
 
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
@@ -13,6 +15,10 @@ public class MonitorReporter {
     public static void reportTime(String name, long startTimeMillis, long endTimeMillis) {
 
        MonitorRepository.getInstance().observed(name, startTimeMillis, endTimeMillis);
+    }
+
+    public static void reportActivity(ObservedActivity observedActivity) {
+        ActivityRepository.getInstance().observed(observedActivity);
     }
 
     public static void startHttpReporter(String reporterHost, int reporterPort, String reporterPrefix) {
