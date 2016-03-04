@@ -1,5 +1,6 @@
 package org.valuereporter.agent.activity;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -16,12 +17,11 @@ public class ObservedActivity {
     //The name is the identification of a method. Typically the name is the full name, including class, and package.
     private final String name;
     private final long startTime;
-    private final Map<String,Object> data;
+    private Map<String,Object> data = new HashMap<>();
 
-    public ObservedActivity(String name, long startTime, Map<String,Object> data) {
+    public ObservedActivity(String name, long startTime) {
         this.name = name;
         this.startTime = startTime;
-        this.data = data;
     }
 
     public String getName() {
@@ -35,6 +35,10 @@ public class ObservedActivity {
 
     public Map<String, Object> getData() {
         return data;
+    }
+
+    public void put(String key,Object value){
+       data.put(key,value);
     }
 
     @Override

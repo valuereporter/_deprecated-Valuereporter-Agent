@@ -22,9 +22,9 @@ public class ObservedActivityTest {
     public void testGetName() throws Exception {
         String name = "testname";
         long timestamp = System.currentTimeMillis();
-        Map<String, Object> values = new HashMap<>();
-        values.put("userid", new String("me"));
-        ObservedActivity observedActivity = new ObservedActivity(name, timestamp,values);
+
+        ObservedActivity observedActivity = new ObservedActivity(name, timestamp);
+        observedActivity.put("userid", new String("me"));
         assertEquals(name, observedActivity.getName());
         assertEquals(timestamp,observedActivity.getStartTime());
         assertEquals("me", observedActivity.getData().get("userid"));

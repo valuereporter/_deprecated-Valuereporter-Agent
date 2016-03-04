@@ -31,9 +31,9 @@ public class CommandSendActivitiesTest {
     @Test
     public void testBuildJson() throws Exception {
         List<ObservedActivity> observedActivities = new ArrayList();
-        Map<String, Object> logonData = new HashMap<>();
-        logonData.put("userId", "me");
-        observedActivities.add(new ObservedActivity("logon",1456904461955L, logonData));
+        ObservedActivity observedActivity = new ObservedActivity("logon",1456904461955L);
+        observedActivity.put("userId", "me");
+        observedActivities.add(observedActivity);
         sendActivities = new CommandSendActivities(null,null,"test",observedActivities);
         String observedActivitiesJson = sendActivities.getObservedActivitiesJson();
         assertNotNull(observedActivitiesJson);
