@@ -20,10 +20,12 @@ import java.util.concurrent.TimeUnit;
 public class ObservedActivityDistributer extends ObservationDistributer {
     private static final Logger log = LoggerFactory.getLogger(ObservedActivityDistributer.class);
     private static final int MAX_CACHE_SIZE = 500;
-    private static final int MAX_WAIT_PERIOD_MS = 60000;
+    private static final int MAX_WAIT_PERIOD_MS = 1000;
     private static final  int THREAD_POOL_DEFAULT_SIZE = 10;
     private final String reporterHost;
     private final String reporterPort;
+    private int maxWaitInterval = MAX_WAIT_PERIOD_MS;
+    private int cacheSize = MAX_CACHE_SIZE;
 
     List<ObservedMethod> observedActivities = new ArrayList<>();
    // HttpSender httpSender;
@@ -36,14 +38,20 @@ public class ObservedActivityDistributer extends ObservationDistributer {
         this.reporterHost = reporterHost;
         this.reporterPort = reporterPort;
         this.prefix = prefix;
-        updateLatestTimeForwarding();
+        updateNextForwardTimestamp();
         int threadPoolSize = THREAD_POOL_DEFAULT_SIZE;
         executor = new ThreadPoolExecutor(threadPoolSize,threadPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
     }
+    public ObservedActivityDistributer(String reporterHost, String reporterPort, String prefix, int cacheSize, int forwardInterval) {
+        this(reporterHost, reporterPort, prefix);
+        this.cacheSize = cacheSize;
+        this.maxWaitInterval = forwardInterval;
+        updateNextForwardTimestamp();
+    }
 
-    protected void updateLatestTimeForwarding() {
+    protected void updateNextForwardTimestamp() {
         DateTime currentTime = new DateTime();
-        DateTime nextTime = currentTime.plusMillis(MAX_WAIT_PERIOD_MS);
+        DateTime nextTime = currentTime.plusMillis(maxWaitInterval);
         nextForwardAtLatest = nextTime.getMillis();
     }
 
@@ -57,9 +65,9 @@ public class ObservedActivityDistributer extends ObservationDistributer {
         if (observedMethod != null) {
             //log.info("Observed {}", observedMethod.toString());
             observedActivities.add(observedMethod);
-            if (observedActivities.size() >= MAX_CACHE_SIZE ||waitedLongEnough()) {
+            if (observedActivities.size() >= cacheSize ||waitedLongEnough()) {
                 forwardOutput();
-                updateLatestTimeForwarding();
+                updateNextForwardTimestamp();
             }
         } else {
             log.warn("Observed Method is null");
