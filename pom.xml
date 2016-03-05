@@ -32,8 +32,8 @@
         <developerConnection>scm:git:ssh://git@github.com/cantara/Valuereporter-Agent.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/Valuereporter-Agent.git</connection>
         <url>https://github.com/cantara/Valuereporter-Agent</url>
-    <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <repositories>
         <repository>
