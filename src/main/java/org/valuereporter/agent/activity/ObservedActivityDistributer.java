@@ -3,9 +3,6 @@ package org.valuereporter.agent.activity;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.valuereporter.agent.ObservationDistributer;
-import org.valuereporter.agent.ObservedMethod;
-import org.valuereporter.agent.http.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * There must be only one Observation Distributer in the JVM.
  * Created by baardl on 07.05.14.
  */
-public class ObservedActivityDistributer extends ObservationDistributer {
+public class ObservedActivityDistributer implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(ObservedActivityDistributer.class);
     private static final int MAX_CACHE_SIZE = 500;
     private static final int MAX_WAIT_PERIOD_MS = 1000;
@@ -27,13 +24,17 @@ public class ObservedActivityDistributer extends ObservationDistributer {
     private int maxWaitInterval = MAX_WAIT_PERIOD_MS;
     private int cacheSize = MAX_CACHE_SIZE;
 
-    List<ObservedMethod> observedActivities = new ArrayList<>();
+    private static ActivityRepository activityRepository;
+    public String prefix = "PREFIX-NOT-SET";
+    private final long sleepPeriod;
+
+    List<ObservedActivity> observedActivities = new ArrayList<>();
    // HttpSender httpSender;
     private long nextForwardAtLatest = -1;
 
     private ThreadPoolExecutor executor = null;
 
-    public ObservedActivityDistributer(String reporterHost, String reporterPort, String prefix) {
+    public ObservedActivityDistributer(String reporterHost, String reporterPort, String prefix, int fowardInterval) {
         super();
         this.reporterHost = reporterHost;
         this.reporterPort = reporterPort;
@@ -41,9 +42,11 @@ public class ObservedActivityDistributer extends ObservationDistributer {
         updateNextForwardTimestamp();
         int threadPoolSize = THREAD_POOL_DEFAULT_SIZE;
         executor = new ThreadPoolExecutor(threadPoolSize,threadPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+        this.sleepPeriod = fowardInterval;
+        activityRepository = ActivityRepository.getInstance();
     }
     public ObservedActivityDistributer(String reporterHost, String reporterPort, String prefix, int batchSize, int forwardInterval) {
-        this(reporterHost, reporterPort, prefix);
+        this(reporterHost, reporterPort, prefix, forwardInterval);
         this.cacheSize = batchSize;
         this.maxWaitInterval = forwardInterval;
         updateNextForwardTimestamp();
@@ -57,14 +60,25 @@ public class ObservedActivityDistributer extends ObservationDistributer {
 
     @Override
     public void run() {
-        super.run();
+        log.info("Starting ObservationDistributer");
+        do {
+            while (activityRepository.hasObservations()) {
+                ObservedActivity observedActivity = activityRepository.takeFirst();
+                updateObservation(observedActivity);
+            }
+            try {
+                Thread.sleep(sleepPeriod);
+            } catch (InterruptedException e) {
+                //Interupted sleep. No probblem, and ignored.
+            }
+        } while (true);
+
     }
 
-    @Override
-    protected void updateObservation(ObservedMethod observedMethod) {
-        if (observedMethod != null) {
-            //log.info("Observed {}", observedMethod.toString());
-            observedActivities.add(observedMethod);
+    protected void updateObservation(ObservedActivity observedActivity) {
+        if (observedActivity != null) {
+            //log.info("Observed {}", observedActivity.toString());
+            observedActivities.add(observedActivity);
             if (observedActivities.size() >= cacheSize ||waitedLongEnough()) {
                 forwardOutput();
                 updateNextForwardTimestamp();
@@ -92,8 +106,15 @@ public class ObservedActivityDistributer extends ObservationDistributer {
         if (executor.getActiveCount() < executor.getMaximumPoolSize()) {
 //            executor.submit(httpSender);
             //Prepare for Hystrix
-            CommandSender commandSender = new CommandSender(reporterHost,reporterPort,prefix, observedActivities);
-            executor.submit(commandSender);
+            List<ObservedActivity> activitiesToSend = new ArrayList<>(observedActivities);
+//            ObservedActivity observedActivity = new ObservedActivity("userlogon", System.currentTimeMillis());
+//            observedActivity.put("userid", "testme");
+//            activitiesToSend.add(observedActivity);
+            if (activitiesToSend != null && activitiesToSend.size() > 0) {
+
+                CommandActivitySender commandSender = new CommandActivitySender(reporterHost, reporterPort, prefix, activitiesToSend);
+                executor.submit(commandSender);
+            }
         }else {
             log.info("No threads available for HttpSender. Will discard content {}", observedActivities.size());
         }

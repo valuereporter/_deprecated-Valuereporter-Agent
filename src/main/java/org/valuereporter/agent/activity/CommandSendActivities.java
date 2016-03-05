@@ -54,10 +54,10 @@ public class CommandSendActivities extends HystrixCommand<String>  {
     @Override
     protected String run() {
         Client client = ClientBuilder.newClient();
-        String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/activities";
+        String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe/activities";
         log.info("Connection to ValueReporter on {}" , observationUrl);
         final WebTarget observationTarget = client.target(observationUrl);
-        WebTarget webResource = observationTarget.path("observedmethods").path(prefix);
+        WebTarget webResource = observationTarget.path(prefix);
         log.trace("Forwarding observedActivities as Json \n{}", observedActivitiesJson);
 
 

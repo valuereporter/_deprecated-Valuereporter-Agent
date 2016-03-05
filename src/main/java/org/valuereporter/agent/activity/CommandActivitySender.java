@@ -20,7 +20,8 @@ public class CommandActivitySender implements Runnable {
         this.reporterHost = reporterHost;
         this.reporterPort = reporterPort;
         this.prefix = prefix;
-        this.observedActivities = observedActivities;
+        List<ObservedActivity> activitiesToSend = observedActivities;
+        this.observedActivities = activitiesToSend;
     }
 
     @Override
