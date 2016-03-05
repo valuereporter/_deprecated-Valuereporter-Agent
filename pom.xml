@@ -3,7 +3,7 @@
 
   <groupId>org.valuereporter</groupId>
   <artifactId>valuereporter-agent</artifactId>
-  <version>0.4-SNAPSHOT</version>
+  <version>0.4</version>
   <packaging>jar</packaging>
     <description>javaagent monitoring activities in your application. This information is forwarded to Valuereporter via http.</description>
     
@@ -32,7 +32,7 @@
         <developerConnection>scm:git:ssh://git@github.com/cantara/Valuereporter-Agent.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/Valuereporter-Agent.git</connection>
         <url>https://github.com/cantara/Valuereporter-Agent</url>
-        <tag>HEAD</tag>
+        <tag>valuereporter-agent-0.4</tag>
     </scm>
 
     <repositories>
