@@ -1,16 +1,12 @@
 package org.valuereporter.agent.activity;
 
+import com.github.kevinsawicki.http.HttpRequest;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
+import org.valuereporter.agent.http.HttpSender;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 
@@ -53,30 +49,36 @@ public class CommandSendActivities extends HystrixCommand<String>  {
 
     @Override
     protected String run() {
-        Client client = ClientBuilder.newClient();
-        String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe/activities";
+//        Client client = ClientBuilder.newClient();
+//        String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe/activities";
+//        log.info("Connection to ValueReporter on {}" , observationUrl);
+//        final WebTarget observationTarget = client.target(observationUrl);
+//        WebTarget webResource = observationTarget.path(prefix);
+//        log.trace("Forwarding observedActivities as Json \n{}", observedActivitiesJson);
+//        Response response = webResource.request(MediaType.APPLICATION_JSON).post(Entity.entity(observedActivitiesJson, MediaType.APPLICATION_JSON));
+//        int statusCode = statusCode;
+
+        String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe" + "/activities/" + prefix;
         log.info("Connection to ValueReporter on {}" , observationUrl);
-        final WebTarget observationTarget = client.target(observationUrl);
-        WebTarget webResource = observationTarget.path(prefix);
-        log.trace("Forwarding observedActivities as Json \n{}", observedActivitiesJson);
-
-
-        Response response = webResource.request(MediaType.APPLICATION_JSON).post(Entity.entity(observedActivitiesJson, MediaType.APPLICATION_JSON));
-        int statusCode = response.getStatus();
+        HttpRequest request = HttpRequest.post(observationUrl ).acceptJson().contentType(HttpSender.APPLICATION_JSON).send(observedActivitiesJson);
+        int statusCode = request.code();
+        String responseBody = request.body();
         switch (statusCode) {
-            case STATUS_OK:
-                log.trace("Updated via http ok. Response is {}", response.readEntity(String.class));
+            case HttpSender.STATUS_OK:
+                log.trace("Updated via http ok. Response is {}", responseBody);
                 break;
-            case STATUS_FORBIDDEN:
-                log.warn("Can not access ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {}, Response {}, ", observationUrl,response.getStatus(), response.readEntity(String.class));
+            case HttpSender.STATUS_FORBIDDEN:
+                log.warn("Can not access ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {}, Response {}, ", observationUrl,statusCode, responseBody);
                 break;
             default:
                 log.trace("Retrying access to ValueReporter");
-                response = webResource.request(MediaType.APPLICATION_JSON).post(Entity.entity(observedActivitiesJson, MediaType.APPLICATION_JSON));
-                if (response.getStatus() == STATUS_OK) {
-                    log.trace("Retry via http ok. Response is {}", response.readEntity(String.class));
+                request = HttpRequest.post(observationUrl ).acceptJson().contentType(HttpSender.APPLICATION_JSON).send(observedActivitiesJson);
+                statusCode = request.code();
+                responseBody = request.body();
+                if (statusCode == HttpSender.STATUS_OK) {
+                    log.trace("Retry via http ok. Response is {}", responseBody);
                 } else {
-                    log.error("Error while accessing ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {},Response from ValueReporter {}", observationUrl, response.getStatus(), response.readEntity(String.class));
+                    log.error("Error while accessing ValueReporter. The application will function as normally, though Observation statistics will not be stored. URL {}, HttpStatus {},Response from ValueReporter {}", observationUrl, statusCode, responseBody);
                 }
         }
         return "OK";
