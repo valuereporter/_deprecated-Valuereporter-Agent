@@ -12,9 +12,6 @@ import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-/**
- * Created by totto on 25.06.15.
- */
 public class CommandSendActivities extends HystrixCommand<String>  {
 
     private static final Logger log = getLogger(CommandSendActivities.class);
@@ -27,10 +24,12 @@ public class CommandSendActivities extends HystrixCommand<String>  {
     private static final int STATUS_OK = 200;
     private static final int STATUS_FORBIDDEN = 403;
     private final String observedActivitiesJson;
+    private final int no_of_activities;
 
     public CommandSendActivities(final String reporterHost, final String reporterPort, final String prefix, final List<ObservedActivity> observedActivities) {
         super(HystrixCommandGroupKey.Factory.asKey("ValueReporterAgent-group"));
         observedActivitiesJson = buildJson(observedActivities);
+        no_of_activities = observedActivities.size();
         this.reporterHost = reporterHost;
         this.reporterPort = reporterPort;
         this.prefix = prefix;
@@ -59,7 +58,7 @@ public class CommandSendActivities extends HystrixCommand<String>  {
 //        int statusCode = statusCode;
 
         String observationUrl = "http://"+reporterHost + ":" + reporterPort +"/reporter/observe" + "/activities/" + prefix;
-        log.info("Connection to ValueReporter on {}" , observationUrl);
+        log.info("Connection to ValueReporter on {} num of activities: {}" , observationUrl,no_of_activities);
         HttpRequest request = HttpRequest.post(observationUrl ).acceptJson().contentType(HttpSender.APPLICATION_JSON).send(observedActivitiesJson);
         int statusCode = request.code();
         String responseBody = request.body();
