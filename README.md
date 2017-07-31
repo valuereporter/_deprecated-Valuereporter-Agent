@@ -43,3 +43,8 @@ name.
 
 - Time-based reporting. Ensure that data are sent from Valuereporter-agent at given intervals. Current implementation
 will, when activity on the monitored application is low, hold the data for a long period of time.
+
+Manual Testing
+===================
+
+Use class CommandActivitySenderTest
