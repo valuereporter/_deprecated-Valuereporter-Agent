@@ -40,6 +40,7 @@ public class TimedClassTransformer implements ClassFileTransformer {
 
         classPool.appendClassPath(new ByteArrayClassPath(className, classBytes));
 
+        if (!isToBeObserved(className)) return null;
         try {
             CtClass ctClass = classPool.get(className);
             if (ctClass.isFrozen()) {
@@ -54,20 +55,18 @@ public class TimedClassTransformer implements ClassFileTransformer {
             }
 
             boolean isClassModified = false;
-            if (isToBeObserved(ctClass.getPackageName())) {
-                for (CtMethod method : ctClass.getDeclaredMethods()) {
-                    if (method.getModifiers() == Modifier.PUBLIC) {
-                        if (method.getMethodInfo().getCodeAttribute() == null) {
-                            //log.debug("Skip method " + method.getLongName());
-                            continue;
-                        }
-                        //log.debug("Instrumenting method {}", method.getLongName());
-                        method.addLocalVariable("__metricStartTime", CtClass.longType);
-                        method.insertBefore("__metricStartTime = System.currentTimeMillis();");
-                        String metricName = ctClass.getName() + "." + method.getName();
-                        method.insertAfter("org.valuereporter.agent.MonitorReporter.reportTime(\"" + metricName + "\", __metricStartTime, System.currentTimeMillis());");
-                        isClassModified = true;
+            for (CtMethod method : ctClass.getDeclaredMethods()) {
+                if (method.getModifiers() == Modifier.PUBLIC) {
+                    if (method.getMethodInfo().getCodeAttribute() == null) {
+                        //log.debug("Skip method " + method.getLongName());
+                        continue;
                     }
+                    //log.debug("Instrumenting method {}", method.getLongName());
+                    method.addLocalVariable("__metricStartTime", CtClass.longType);
+                    method.insertBefore("__metricStartTime = System.currentTimeMillis();");
+                    String metricName = ctClass.getName() + "." + method.getName();
+                    method.insertAfter("org.valuereporter.agent.MonitorReporter.reportTime(\"" + metricName + "\", __metricStartTime, System.currentTimeMillis());");
+                    isClassModified = true;
                 }
             }
             if (!isClassModified) {
