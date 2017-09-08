@@ -38,6 +38,10 @@ public class TimedClassTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain, byte[] classBytes) throws IllegalClassFormatException {
         String className = fullyQualifiedClassName.replace("/", ".");
 
+        //class inspection can in some cases lead to ClassCircularityError, so return early if class is not meant to be instrumented
+        // similar issue fixed here: https://github.com/ActiveJpa/activejpa/issues/26
+        if (!isToBeObserved(className)) return null;
+
         classPool.appendClassPath(new ByteArrayClassPath(className, classBytes));
 
         try {
@@ -54,20 +58,18 @@ public class TimedClassTransformer implements ClassFileTransformer {
             }
 
             boolean isClassModified = false;
-            if (isToBeObserved(ctClass.getPackageName())) {
-                for (CtMethod method : ctClass.getDeclaredMethods()) {
-                    if (method.getModifiers() == Modifier.PUBLIC) {
-                        if (method.getMethodInfo().getCodeAttribute() == null) {
-                            //log.debug("Skip method " + method.getLongName());
-                            continue;
-                        }
-                        //log.debug("Instrumenting method {}", method.getLongName());
-                        method.addLocalVariable("__metricStartTime", CtClass.longType);
-                        method.insertBefore("__metricStartTime = System.currentTimeMillis();");
-                        String metricName = ctClass.getName() + "." + method.getName();
-                        method.insertAfter("org.valuereporter.agent.MonitorReporter.reportTime(\"" + metricName + "\", __metricStartTime, System.currentTimeMillis());");
-                        isClassModified = true;
+            for (CtMethod method : ctClass.getDeclaredMethods()) {
+                if (method.getModifiers() == Modifier.PUBLIC) {
+                    if (method.getMethodInfo().getCodeAttribute() == null) {
+                        //log.debug("Skip method " + method.getLongName());
+                        continue;
                     }
+                    //log.debug("Instrumenting method {}", method.getLongName());
+                    method.addLocalVariable("__metricStartTime", CtClass.longType);
+                    method.insertBefore("__metricStartTime = System.currentTimeMillis();");
+                    String metricName = ctClass.getName() + "." + method.getName();
+                    method.insertAfter("org.valuereporter.agent.MonitorReporter.reportTime(\"" + metricName + "\", __metricStartTime, System.currentTimeMillis());");
+                    isClassModified = true;
                 }
             }
             if (!isClassModified) {
