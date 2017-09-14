@@ -49,7 +49,38 @@ name.
 - Time-based reporting. Ensure that data are sent from Valuereporter-agent at given intervals. Current implementation
 will, when activity on the monitored application is low, hold the data for a long period of time.
 
+
 Manual Testing
 ===================
 
 Use class CommandActivitySenderTest
+
+Installation included in your service
+===================
+
+#### In your main class:
+```
+ //Start Valuereporter event distributer.
+        try {
+            String reporterHost = appConfig.getProperty("valuereporter.host");
+            String reporterPort = appConfig.getProperty("valuereporter.port");
+            String prefix = appConfig.getProperty("applicationname");
+            int cacheSize = Integer.parseInt(appConfig.getProperty("valuereporter.activity.batchsize"));
+            int forwardInterval = Integer.parseInt(appConfig.getProperty("valuereporter.activity.postintervalms"));
+            new Thread(new ObservedActivityDistributer(reporterHost, reporterPort, prefix, cacheSize, forwardInterval)).start();
+            new Thread(new HttpObservationDistributer(reporterHost, reporterPort, prefix)).start();
+
+        } catch (Exception e) {
+            log.warn("Error in valueReporter property configuration - unable to start observers");
+        }
+```
+
+#### Report usage
+
+```
+// Report to Valuereporter
+ObservedActivity observedActivity = new ObservedActivity(activityName, System.currentTimeMillis());
+MonitorReporter.reportActivity(observedActivity);
+```
+
+
